@@ -45,8 +45,8 @@ client.once('ready', async () => {
   await QueueService.init();
   QueueService.setDiscordClient(client);
 
-  // Deploy Slash Commands to Discord (Immediate Guild Activation + Global)
-  await deploySlashCommands(client);
+  // Slash commands are centrally managed by PAYOMBØYZ Shop Bot (4_shop_bot)
+  // await deploySlashCommands(client);
 
   // Background FIFO Queue Watcher (Dual-engine: processes both immediate and pending jobs)
   setInterval(() => {

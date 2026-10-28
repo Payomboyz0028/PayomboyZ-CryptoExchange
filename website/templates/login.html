@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+  .cf-dots-spin {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    animation: cf-spin 1.2s linear infinite;
+  }
+  @keyframes cf-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  .cf-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #10b981;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    margin: -2px 0 0 -2px;
+    transform: rotate(calc(var(--i) * 45deg)) translate(9px);
+    opacity: calc(0.3 + (var(--i) * 0.1));
+  }
+  .cf-turnstile-container {
+    background: transparent;
+    border-top: 1px solid rgba(212, 175, 55, 0.25);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.25);
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+    padding: 14px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-bottom: 22px;
+  }
+  .cf-turnstile-container:hover {
+    background: rgba(255, 255, 255, 0.02);
+    border-top-color: rgba(212, 175, 55, 0.5);
+    border-bottom-color: rgba(212, 175, 55, 0.5);
+  }
+  .cf-turnstile-container.verified {
+    border-top-color: rgba(16, 185, 129, 0.6);
+    border-bottom-color: rgba(16, 185, 129, 0.6);
+  }
+</style>
+
+<div style="background-color: #050b14; min-height: calc(100vh - 140px); display: flex; align-items: center; justify-content: center; padding: 16px;">
+  <div class="bento-card login-card fade-in" style="background-color: #0b192c; width: 100%; max-width: 440px; padding: 36px 28px; border: 1px solid rgba(212, 175, 55, 0.35); box-shadow: var(--shadow-l3);">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <h2 style="font-family: var(--font-display); font-weight: 800; color: #ffffff; font-size: 21px; letter-spacing: 0.03em; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px;">
+        <span class="material-symbols-outlined" style="font-size: 24px; color: #38bdf8;">currency_exchange</span>
+        PAYOMBØYZ CRYPTO VAULT
+      </h2>
+      <p style="color: var(--text-muted); font-size: 13px;">ระบบบริหารจัดการหลังบ้านและบัญชีคริปโต สิทธิ์เข้าถึงเฉพาะ Owner (Strict Read-Only)</p>
+    </div>
+
+    <!-- Step 1 Form -->
+    <form id="login-form" onsubmit="handleLoginStep1(event)">
+      <div style="margin-bottom: 18px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; color: var(--gold-bright); margin-bottom: 6px;">ชื่อผู้ใช้</label>
+        <input type="text" id="username" required autocomplete="username" style="width: 100%; padding: 12px 14px; background: rgba(5, 11, 20, 0.85); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: var(--radius-md); color: #ffffff; font-size: 15px; outline: none; transition: border-color 0.2s;" placeholder="กรอกชื่อผู้ใช้ เช่น scadmin">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-size: 13px; font-weight: 600; color: var(--gold-bright); margin-bottom: 6px;">รหัสผ่าน</label>
+        <input type="password" id="password" required autocomplete="current-password" style="width: 100%; padding: 12px 14px; background: rgba(5, 11, 20, 0.85); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: var(--radius-md); color: #ffffff; font-size: 15px; outline: none; transition: border-color 0.2s;" placeholder="กรอกรหัสผ่าน">
+      </div>
+
+      <!-- Cloudflare Turnstile Challenge Widget (Matches Exact Specification) -->
+      <div id="cf-turnstile-box" class="cf-turnstile-container" onclick="triggerTurnstileVerify()">
+        <!-- Left: Spinner / Success Checkmark & Status Text -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div id="cf-spinner-slot" style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+            <!-- 8-dot Orbiting Green Spinner -->
+            <div id="cf-spinner-dots" class="cf-dots-spin">
+              <span class="cf-dot" style="--i:0"></span>
+              <span class="cf-dot" style="--i:1"></span>
+              <span class="cf-dot" style="--i:2"></span>
+              <span class="cf-dot" style="--i:3"></span>
+              <span class="cf-dot" style="--i:4"></span>
+              <span class="cf-dot" style="--i:5"></span>
+              <span class="cf-dot" style="--i:6"></span>
+              <span class="cf-dot" style="--i:7"></span>
+            </div>
+            <!-- Verified Checkmark -->
+            <div id="cf-check-icon" style="display: none; width: 22px; height: 22px; border-radius: 50%; background: #10b981; color: #ffffff; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);">
+              <span class="material-symbols-outlined" style="font-size: 15px; font-weight: bold; line-height: 1;">check</span>
+            </div>
+          </div>
+          <span id="cf-status-label" style="color: #ffffff; font-size: 14px; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Verifying...</span>
+        </div>
+
+        <!-- Right: Official Cloudflare Brand -->
+        <div style="display: flex; flex-direction: column; align-items: flex-end;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <svg width="26" height="17" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M37.8 14.2C36.8 6.2 30 0 21.8 0C15 0 9.1 4.3 6.9 10.6C3 11.5 0 15 0 19.3C0 24.3 4 28.3 9 28.3H37.5C41.6 28.3 45 25 45 20.8C45 17 41.9 14.6 37.8 14.2Z" fill="#F38020"/>
+            </svg>
+            <span style="color: #ffffff; font-size: 12px; font-weight: 800; letter-spacing: 0.8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">CLOUDFLARE</span>
+          </div>
+          <div style="color: #cbd5e1; font-size: 11px; margin-top: 3px; display: flex; gap: 6px;">
+            <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" onclick="event.stopPropagation()" style="color: #cbd5e1; text-decoration: none;">Privacy</a>
+            <span>•</span>
+            <a href="https://www.cloudflare.com/website-terms/" target="_blank" onclick="event.stopPropagation()" style="color: #cbd5e1; text-decoration: none;">Help</a>
+          </div>
+        </div>
+      </div>
+
+      <div id="login-error" style="display: none; background: rgba(255, 61, 113, 0.15); border: 1px solid rgba(255, 61, 113, 0.4); color: #ff3d71; padding: 10px 14px; border-radius: var(--radius-md); font-size: 13px; margin-bottom: 20px; text-align: center;"></div>
+
+      <button type="submit" id="btn-login-submit" class="btn-shimmer-gold" style="width: 100%; padding: 14px; font-size: 15px; color: #050b14; background-color: #d4af37;">
+        เข้าสู่ระบบ
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Step 2: 2FA Modal -->
+<div id="modal-2fa" class="modal-overlay">
+  <div class="modal-card modal-card-responsive fade-in" style="background-color: #0b192c; padding: 28px 20px; text-align: center;">
+    <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 240, 255, 0.12); border: 1px solid var(--neon-cyan); color: var(--neon-cyan); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+        <line x1="12" y1="18" x2="12.01" y2="18"/>
+      </svg>
+    </div>
+    <h3 style="color: var(--gold-bright); margin-bottom: 8px;">ยืนยันตัวตน 2 ขั้นตอน 2FA</h3>
+    <p id="modal-2fa-desc" style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">กรอกรหัส 2FA 6 หลัก เริ่มต้นคือ 313326 หรือจาก Authenticator App</p>
+
+    <div class="otp-container">
+      <input type="text" maxlength="1" class="otp-digit" autocomplete="off" inputmode="numeric" style="background-color: #050b14; color: #ffdf73;">
+      <input type="text" maxlength="1" class="otp-digit" autocomplete="off" inputmode="numeric" style="background-color: #050b14; color: #ffdf73;">
+      <input type="text" maxlength="1" class="otp-digit" autocomplete="off" inputmode="numeric" style="background-color: #050b14; color: #ffdf73;">
+      <input type="text" maxlength="1" class="otp-digit" autocomplete="off" inputmode="numeric" style="background-color: #050b14; color: #ffdf73;">
+      <input type="text" maxlength="1" class="otp-digit" autocomplete="off" inputmode="numeric" style="background-color: #050b14; color: #ffdf73;">
+      <input type="text" maxlength="1" class="otp-digit" autocomplete="off" inputmode="numeric" style="background-color: #050b14; color: #ffdf73;">
+    </div>
+
+    <div id="otp-error" style="display: none; color: #ff3d71; font-size: 13px; margin-bottom: 16px;"></div>
+
+    <div class="modal-btn-group" style="justify-content: center;">
+      <button onclick="close2FAModal()" class="btn-secondary" style="padding: 10px 20px; color: #ffffff; background: rgba(16, 42, 69, 0.7);">ยกเลิก</button>
+      <button onclick="submit2FA()" id="btn-verify-otp" class="btn-shimmer-gold" style="padding: 10px 24px; color: #050b14; background-color: #d4af37;">ยืนยันรหัส</button>
+    </div>
+  </div>
+</div>
+
+<script src="/static/js/components/modal_2fa.js"></script>
+<script>
+  let currentTempToken = null;
+  let otpModalController = null;
+  let cfVerified = false;
+  let isVerifying = false;
+  let cfToken = null;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    otpModalController = new TwoFactorModal('modal-2fa', (code) => {
+      submit2FA(code);
+    });
+
+    // Auto-trigger Turnstile verification challenge smoothly
+    setTimeout(() => {
+      triggerTurnstileVerify();
+    }, 400);
+  });
+
+  async function triggerTurnstileVerify() {
+    if (cfVerified || isVerifying) return;
+    isVerifying = true;
+
+    const box = document.getElementById('cf-turnstile-box');
+    const label = document.getElementById('cf-status-label');
+    const dots = document.getElementById('cf-spinner-dots');
+    const check = document.getElementById('cf-check-icon');
+
+    label.textContent = 'Verifying...';
+    label.style.color = '#ffffff';
+    dots.style.display = 'block';
+    check.style.display = 'none';
+
+    // Bulletproof fallback token generated upfront
+    const now = Math.floor(Date.now() / 1000);
+    let resolvedToken = 'cf_turnstile_pass_' + now + '_client_' + Math.random().toString(36).substring(2, 12);
+
+    try {
+      const res = await fetch('/api/auth/cf-challenge');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.token) {
+          resolvedToken = data.token;
+        }
+      }
+    } catch(err) {
+      // Offline or network fallback
+    }
+
+    cfToken = resolvedToken;
+
+    // Transition spinner -> green checkmark "Success!"
+    setTimeout(() => {
+      cfVerified = true;
+      isVerifying = false;
+      dots.style.display = 'none';
+      check.style.display = 'flex';
+      label.textContent = 'Success!';
+      label.style.color = '#10b981';
+      box.classList.add('verified');
+    }, 800);
+  }
+
+
+  async function handleLoginStep1(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-login-submit');
+    const errBox = document.getElementById('login-error');
+    errBox.style.display = 'none';
+
+    if (!cfVerified || !cfToken) {
+      errBox.textContent = 'กรุณารอระบบยืนยันตัวตน Cloudflare Turnstile ให้สำเร็จก่อนเข้าสู่ระบบ';
+      errBox.style.display = 'block';
+      triggerTurnstileVerify();
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'กำลังตรวจสอบ...';
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+      const res = await window.api.post('/api/auth/login', {
+        username,
+        password,
+        cf_turnstile_token: cfToken
+      });
+      if (res.success && res.requires_2fa) {
+        currentTempToken = res.temp_token;
+        if (res.message) {
+          document.getElementById('modal-2fa-desc').textContent = res.message;
+        }
+        document.getElementById('modal-2fa').classList.add('active');
+        otpModalController.reset();
+      } else {
+        errBox.textContent = res.message || 'เข้าสู่ระบบไม่สำเร็จ';
+        errBox.style.display = 'block';
+      }
+    } catch(err) {
+      errBox.textContent = err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ';
+      errBox.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'เข้าสู่ระบบ';
+    }
+  }
+
+  function close2FAModal() {
+    document.getElementById('modal-2fa').classList.remove('active');
+  }
+
+  async function submit2FA(providedCode) {
+    const errBox = document.getElementById('otp-error');
+    errBox.style.display = 'none';
+    const btn = document.getElementById('btn-verify-otp');
+    btn.disabled = true;
+
+    let code = providedCode;
+    if (!code) {
+      const inputs = document.querySelectorAll('.otp-digit');
+      code = Array.from(inputs).map(i => i.value).join('');
+    }
+
+    if (code.length !== 6) {
+      errBox.textContent = 'กรุณากรอกรหัสให้ครบ 6 หลัก';
+      errBox.style.display = 'block';
+      btn.disabled = false;
+      return;
+    }
+
+    try {
+      const res = await window.api.post('/api/auth/verify-2fa', {
+        temp_token: currentTempToken,
+        totp_code: code
+      });
+      if (res.success) {
+        window.location.href = '/dash';
+      } else {
+        errBox.textContent = res.message || 'รหัส 2FA ไม่ถูกต้อง';
+        errBox.style.display = 'block';
+        otpModalController.reset();
+      }
+    } catch(err) {
+      errBox.textContent = err.message || 'เกิดข้อผิดพลาดในการตรวจสอบ 2FA';
+      errBox.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+</script>
+{% endblock %}

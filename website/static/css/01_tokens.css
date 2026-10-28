@@ -1,0 +1,50 @@
+/* 01_tokens.css - Royal Sapphire & Metallic Gold Design Tokens */
+:root {
+  /* ── 1. Color Space (Royal Sapphire & Midnight Obsidian) ── */
+  --bg-canvas: #050b14;
+  --bg-surface-0: #08111e;
+  --bg-surface-1: #0b192c;
+  --bg-surface-2: #102a45;
+  --bg-surface-3: #183d63;
+
+  --bg-gradient-canvas: radial-gradient(circle at 50% 0%, #102a45 0%, #050b14 75%);
+  --bg-gradient-card: linear-gradient(135deg, rgba(16, 42, 69, 0.7) 0%, rgba(11, 25, 44, 0.85) 100%);
+  --bg-gradient-glass: linear-gradient(180deg, rgba(30, 62, 98, 0.35) 0%, rgba(11, 25, 44, 0.75) 100%);
+
+  /* ── 2. Metallic Gold Palette ── */
+  --gold-primary: #d4af37;
+  --gold-bright: #ffdf73;
+  --gold-deep: #aa771c;
+  --gold-metallic: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa771c 100%);
+  --gold-border-gloss: linear-gradient(90deg, rgba(212, 175, 55, 0.25) 0%, rgba(255, 223, 115, 0.8) 50%, rgba(212, 175, 55, 0.25) 100%);
+  --gold-glow: 0 4px 16px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(212, 175, 55, 0.3);
+  --gold-shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+
+  /* ── 3. Accents & Semantics ── */
+  --neon-cyan: #38bdf8;
+  --neon-cyan-glow: 0 4px 16px -2px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(56, 189, 248, 0.3);
+  --emerald-success: #10b981;
+  --amber-warning: #f59e0b;
+  --crimson-danger: #f43f5e;
+
+  /* ── 4. Text Hierarchy ── */
+  --text-primary: #ffffff;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-gold: #ffdf73;
+
+  /* ── 5. Typography Scale ── */
+  --font-display: 'Outfit', 'Kanit', sans-serif;
+  --font-body: 'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', Consolas, monospace;
+
+  /* ── 6. Border Radius & Layered Elevation ── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  --shadow-l1: 0 1px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --shadow-l2: 0 4px 20px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(212, 175, 55, 0.2);
+  --shadow-l3: 0 12px 32px -4px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(212, 175, 55, 0.3);
+}

@@ -1,0 +1,51 @@
+{
+  "name": "payomboyz-crypto-exchange",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Automated THB-to-Crypto Exchange Bot with EasySlip and Multi-Chain Hot Wallet Engine",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "prisma generate && tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "worker": "ts-node src/worker.ts",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "postinstall": "prisma generate"
+  },
+  "keywords": [
+    "discord-bot",
+    "crypto-exchange",
+    "easyslip",
+    "promptpay",
+    "usdt",
+    "litecoin",
+    "hot-wallet"
+  ],
+  "author": "PayomboyZ",
+  "license": "ISC",
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.13",
+    "@prisma/client": "^5.22.0",
+    "axios": "^1.7.9",
+    "bitcoinjs-lib": "^6.1.7",
+    "bullmq": "^5.34.4",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "ecpair": "^2.1.0",
+    "ethers": "^6.13.4",
+    "ioredis": "^5.4.2",
+    "promptpay-qr": "^0.5.0",
+    "qrcode": "^1.5.4",
+    "tiny-secp256k1": "^2.2.3",
+    "tronweb": "^6.0.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/qrcode": "^1.5.5",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}

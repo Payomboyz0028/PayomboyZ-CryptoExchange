@@ -1,0 +1,944 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-7xl" style="max-width: 1360px; margin: 0 auto; padding: 0 16px;">
+
+  <!-- ── 1. Pipeline Highway & Slash Bar (Luxury Obsidian & Crimson Ruby) ── -->
+  <div class="pipeline-bar" style="background: linear-gradient(135deg, rgba(20, 5, 9, 0.95) 0%, rgba(30, 8, 14, 0.90) 100%); border: 1.5px solid rgba(212, 175, 55, 0.35); border-radius: 12px; padding: 12px 20px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 6px 28px rgba(0,0,0,0.5);">
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 13px;">
+        <span style="color: #94a3b8;">ROUTER</span>
+        <span style="color: #94a3b8;">&gt;</span>
+        <span style="color: #ffd700; font-weight: 700; background: rgba(212, 175, 55, 0.15); padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(212, 175, 55, 0.35);">
+          /crypto
+        </span>
+        <span style="color: #fca5a5; font-size: 12px; font-weight: 600;">(BINANCE MASTER SAPI CLEARING VAULT)</span>
+      </div>
+
+      <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 255, 136, 0.12); border: 1px solid rgba(0, 255, 136, 0.4); padding: 3px 10px; border-radius: 20px;">
+        <span class="material-symbols-outlined" style="font-size: 14px; color: #00ff88;">verified_user</span>
+        <span style="font-size: 11px; font-weight: 700; color: #00ff88; letter-spacing: 0.05em;">MASTER HUB ONLINE (5.00 USDT)</span>
+      </div>
+    </div>
+
+    <!-- Quick Navigation & Refresh -->
+    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <a href="#section-wallets" class="pipeline-link" style="color: #ffd700;">
+        <span class="material-symbols-outlined" style="font-size: 14px; color: #ffd700;">account_balance_wallet</span>
+        <span>สภาพคล่องกลาง</span>
+      </a>
+      <a href="#section-rates" class="pipeline-link" style="color: #00ff88;">
+        <span class="material-symbols-outlined" style="font-size: 14px; color: #00ff88;">price_change</span>
+        <span>เรทแลกเปลี่ยนสด</span>
+      </a>
+      <a href="#section-orders" class="pipeline-link" style="color: #fca5a5;">
+        <span class="material-symbols-outlined" style="font-size: 14px; color: #fca5a5;">receipt_long</span>
+        <span>ประวัติธุรกรรม</span>
+      </a>
+      <button onclick="refreshAllCryptoData(true)" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+        <span id="refresh-icon" class="material-symbols-outlined" style="font-size: 16px; color: #ffd700;">refresh</span>
+        <span style="font-weight: 700; color: #ffd700;">รีเฟรชทั้งหมด</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 2. Top Header & Title ── -->
+  <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+    <div>
+      <h1 class="crypto-main-title" style="font-family: var(--font-display); font-size: clamp(18px, 4.2vw, 26px); font-weight: 800; color: #ffffff; margin: 0 0 6px 0; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <span class="material-symbols-outlined" style="font-size: clamp(24px, 5vw, 32px); color: #ffd700; text-shadow: 0 0 12px rgba(255, 215, 0, 0.4);">currency_exchange</span>
+        <span>ศูนย์บัญชาการ<wbr>แลกเปลี่ยน<wbr>คริปโต</span>
+        <span class="sub-title" style="font-size: clamp(12px, 2.8vw, 14px); font-weight: 700; color: #ffd700; font-family: var(--font-sans);">(Binance SAPI Master Clearing House)</span>
+      </h1>
+      <p style="color: #94a3b8; font-size: 13px; margin: 0;">
+        ควบคุมสภาพคล่องกลาง Binance Master Hub, เรทแลกเปลี่ยนสดแบบเรียลไทม์ และระบบจ่ายเงินหลายเชนอัตโนมัติ (Strict Read-Only)
+      </p>
+    </div>
+
+    <!-- Time Window Selector -->
+    <div style="display: flex; align-items: center; background: rgba(22, 6, 11, 0.9); border: 1px solid rgba(212, 175, 55, 0.35); border-radius: 8px; padding: 4px; gap: 4px;">
+      <button class="time-tab active" onclick="switchTimeRange('all', this)">ทั้งหมด</button>
+      <button class="time-tab" onclick="switchTimeRange('30d', this)">30 วัน</button>
+      <button class="time-tab" onclick="switchTimeRange('7d', this)">7 วัน</button>
+      <button class="time-tab" onclick="switchTimeRange('1d', this)">24 ชั่วโมง</button>
+    </div>
+  </div>
+
+  <!-- ── 3. Section: Unified Binance Master Liquidity & Cold Vault ── -->
+  <div id="section-wallets" style="margin-bottom: 28px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+      <h2 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined" style="font-size: 20px; color: #ffd700;">account_balance_wallet</span>
+        <span>สภาพคล่องกลางหลัก (Binance Multi-Chain Hub) &amp; คลังสำรองเก็บบนเชน</span>
+      </h2>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 8px #00ff88;"></span>
+        <span style="font-size: 12px; color: #00ff88; font-family: var(--font-mono); font-weight: 600;">SAPI INSTANT MULTI-CHAIN DISPATCH</span>
+      </div>
+    </div>
+
+    <!-- Wallet Grid (2 Clean Unified Cards) -->
+    <div id="wallet-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 18px;">
+      <!-- Skeleton Loading Cards -->
+      <div class="bento-card" style="padding: 24px; border-radius: 14px; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+        <span class="material-symbols-outlined" style="animation: spin 1.5s linear infinite; color: #ffd700; font-size: 28px;">progress_activity</span>
+      </div>
+      <div class="bento-card" style="padding: 24px; border-radius: 14px; min-height: 200px; display: flex; align-items: center; justify-content: center;">
+        <span class="material-symbols-outlined" style="animation: spin 1.5s linear infinite; color: #ffd700; font-size: 28px;">progress_activity</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. Section: Executive Financial Overview (KPI Metrics) ── -->
+  <div style="margin-bottom: 28px;">
+    <div style="margin-bottom: 14px;">
+      <h2 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined" style="font-size: 20px; color: #ffd700;">analytics</span>
+        <span>ภาพรวมผลประกอบการทางการเงิน (Financial Intelligence)</span>
+      </h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+      <!-- KPI 1: Volume THB -->
+      <div class="bento-card" style="padding: 20px; border-radius: 12px; position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">ปริมาณเงินบาทรวม (Volume THB)</span>
+          <span class="material-symbols-outlined" style="color: #ffd700; font-size: 22px;">payments</span>
+        </div>
+        <div id="kpi-volume-thb" style="font-family: var(--font-display); font-size: 26px; font-weight: 800; color: #ffffff;">0.00 บาท</div>
+        <div id="kpi-orders-count" style="font-size: 12px; color: #94a3b8; margin-top: 6px;">0 ออเดอร์ที่สำเร็จ</div>
+      </div>
+
+      <!-- KPI 2: Gross Margin Profit -->
+      <div class="bento-card" style="padding: 20px; border-radius: 12px; border-color: rgba(220, 38, 38, 0.4) !important; position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <span style="font-size: 12px; font-weight: 600; color: #fca5a5; text-transform: uppercase;">กำไรส่วนต่างสุทธิ (Gross Margin)</span>
+          <span class="material-symbols-outlined" style="color: #00ff88; font-size: 22px;">trending_up</span>
+        </div>
+        <div id="kpi-margin-thb" style="font-family: var(--font-display); font-size: 26px; font-weight: 800; color: #00ff88;">+0.00 บาท</div>
+        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px;">รายได้จริงจากค่าหัวคิวและส่วนต่างเรท</div>
+      </div>
+
+      <!-- KPI 3: Gas Fees Collected -->
+      <div class="bento-card" style="padding: 20px; border-radius: 12px; position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">ค่าแก๊สที่เรียกเก็บ (Gas Collected)</span>
+          <span class="material-symbols-outlined" style="color: #ffd700; font-size: 22px;">local_gas_station</span>
+        </div>
+        <div id="kpi-gas-collected" style="font-family: var(--font-display); font-size: 26px; font-weight: 800; color: #ffd700;">0.00 บาท</div>
+        <div style="font-size: 12px; color: #94a3b8; margin-top: 6px;">เก็บตรงตามเชนเพื่อครอบคลุมค่าแก๊ส</div>
+      </div>
+
+      <!-- KPI 4: Success Rate -->
+      <div class="bento-card" style="padding: 20px; border-radius: 12px; position: relative; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <span style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase;">อัตราความสำเร็จ (Success Rate)</span>
+          <span class="material-symbols-outlined" style="color: #00ff88; font-size: 22px;">task_alt</span>
+        </div>
+        <div id="kpi-success-rate" style="font-family: var(--font-display); font-size: 26px; font-weight: 800; color: #ffffff;">100.0%</div>
+        <div id="kpi-failed-count" style="font-size: 12px; color: #94a3b8; margin-top: 6px;">0 รายการล้มเหลว (คืนเงินแล้ว)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. Section: Live Exchange Rates & Real-Time Feed ── -->
+  <div id="section-rates" style="margin-bottom: 28px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <h2 style="font-size: 16px; font-weight: 700; color: #ffffff; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <span class="material-symbols-outlined" style="font-size: 20px; color: #ffd700;">price_change</span>
+          <span>เรทแลกเปลี่ยนสดและโครงสร้างราคา (Live Rates &amp; Real-Time Margins)</span>
+        </h2>
+        <span style="display: inline-flex; align-items: center; gap: 5px; background: rgba(0, 255, 136, 0.12); border: 1px solid rgba(0, 255, 136, 0.35); color: #00ff88; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 700;">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 6px #00ff88;"></span>
+          LIVE FEED
+        </span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <!-- Auto-Refresh Countdown Badge -->
+        <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(22, 6, 11, 0.85); border: 1px solid rgba(212, 175, 55, 0.35); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-family: var(--font-mono); color: #ffd700;">
+          <span class="material-symbols-outlined" style="font-size: 14px; color: #ffd700;">timelapse</span>
+          <span>รีเฟรชออโต้ใน: <strong id="rates-countdown-num">10</strong> วิ</span>
+        </div>
+
+        <!-- Manual Instant Refresh Button -->
+        <button onclick="triggerRatesRefreshNow()" class="btn-secondary" style="padding: 6px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+          <span id="rate-spin-icon" class="material-symbols-outlined" style="font-size: 16px; color: #ffd700;">refresh</span>
+          <span style="font-weight: 700; color: #ffd700;">รีเฟรชเรทสด</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Market Ticker Ribbon (Bitkub & Binance Live Price) -->
+    <div style="background: rgba(18, 4, 8, 0.85); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 10px; padding: 12px 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+      <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap; font-size: 12px;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="color: #94a3b8;">🇹🇭 Bitkub Spot USDT:</span>
+          <strong id="ticker-usdt-price" style="font-family: var(--font-mono); font-size: 14px; color: #00ff88;">33.80 บาท</strong>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="color: #94a3b8;">🌐 Binance Spot LTC:</span>
+          <strong id="ticker-ltc-price" style="font-family: var(--font-mono); font-size: 14px; color: #ffd700;">70.00 USDT</strong>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="color: #94a3b8;">🛡️ กำไรส่วนต่าง (Spread):</span>
+          <span style="color: #fca5a5; font-weight: 600;">+1.20 บาท/USDT (LTC +50 บาท)</span>
+        </div>
+      </div>
+      <div style="font-size: 11px; color: #ffd700; font-family: var(--font-mono);">
+        ⚡ SAPI Payout: BSC (0.01$) • MATIC (0.03$) • TRON (1.50$) • LTC (0.0001 LTC)
+      </div>
+    </div>
+
+    <div class="data-table-container" style="border-radius: 12px; overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+        <thead>
+          <tr style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); color: #ffd700; background: rgba(14, 3, 6, 0.85);">
+            <th style="padding: 12px 16px;">สินทรัพย์ &amp; เครือข่าย</th>
+            <th style="padding: 12px 16px;">ราคาตลาดต้นทุน</th>
+            <th style="padding: 12px 16px;">ค่าบริการร้าน (Margin)</th>
+            <th style="padding: 12px 16px;">เรทขายสุทธิ (Effective)</th>
+            <th style="padding: 12px 16px;">ค่าธรรมเนียมโอน (SAPI Gas)</th>
+            <th style="padding: 12px 16px;">แลกขั้นต่ำ</th>
+          </tr>
+        </thead>
+        <tbody id="rates-table-body">
+          <tr>
+            <td colspan="6" style="text-align: center; padding: 24px; color: #94a3b8;">กำลังดึงเรทราคาแบบเรียลไทม์...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 6. Section: Real-Time Transaction Ledger (ตารางตรวจสอบประวัติธุรกรรม) ── -->
+  <div id="section-orders" style="margin-bottom: 40px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+      <div>
+        <h2 style="font-size: 18px; font-weight: 700; color: #ffffff; margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px;">
+          <span class="material-symbols-outlined" style="font-size: 22px; color: var(--gold-bright);">receipt_long</span>
+          <span>ตารางประวัติธุรกรรมคริปโต (Transaction Ledger)</span>
+        </h2>
+        <span style="font-size: 12px; color: #94a3b8;">สามารถค้นหาและตรวจสอบสถานะแบบ On-Chain หรือดูสลิปดิจิทัลย้อนหลังได้</span>
+      </div>
+
+      <!-- Filters & Search Bar -->
+      <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <!-- Search Input -->
+        <div style="position: relative; min-width: 240px;">
+          <span class="material-symbols-outlined" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 18px; color: #64748b;">search</span>
+          <input type="text" id="order-search-input" placeholder="ค้นหา Discord ID, Order ID, กระเป๋า, TxID..." onkeyup="if(event.key==='Enter') loadOrders(0)" style="width: 100%; background: #050b14; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px 8px 34px; font-size: 12px; color: #ffffff; outline: none;">
+        </div>
+
+        <!-- Status Filter -->
+        <select id="order-status-filter" onchange="loadOrders(0)" style="background: #050b14; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #ffffff; outline: none; cursor: pointer;">
+          <option value="ALL">ทุกสถานะ (All Status)</option>
+          <option value="COMPLETED">สำเร็จ (COMPLETED)</option>
+          <option value="FAILED">ล้มเหลว (FAILED)</option>
+          <option value="QUEUED_FOR_PAYOUT">รอคิวโอน (QUEUED)</option>
+          <option value="CANCELLED">ยกเลิก (CANCELLED)</option>
+        </select>
+
+        <!-- Asset Filter -->
+        <select id="order-asset-filter" onchange="loadOrders(0)" style="background: #050b14; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: #ffffff; outline: none; cursor: pointer;">
+          <option value="ALL">ทุกเหรียญ (All Coins)</option>
+          <option value="USDT_BEP20">USDT (BSC)</option>
+          <option value="USDT_TRC20">USDT (TRON)</option>
+          <option value="USDT_POLYGON">USDT (Polygon)</option>
+          <option value="LTC">Litecoin (LTC)</option>
+        </select>
+
+        <button onclick="loadOrders(0)" class="btn-secondary" style="padding: 8px 14px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(56, 189, 248, 0.4); cursor: pointer;">
+          <span class="material-symbols-outlined" style="font-size: 16px;">filter_alt</span>
+          <span>กรองข้อมูล</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Responsive Container (Desktop Table / Mobile Cards) -->
+    <div class="data-table-container" style="background: #0b192c; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden;">
+      
+      <!-- Desktop Table View -->
+      <div class="table-responsive-desktop" style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.08); color: #94a3b8; background: rgba(5, 11, 20, 0.6);">
+              <th style="padding: 12px 16px;">วัน-เวลา / Order ID</th>
+              <th style="padding: 12px 16px;">ลูกค้า (Discord ID)</th>
+              <th style="padding: 12px 16px;">เหรียญ &amp; เครือข่าย</th>
+              <th style="padding: 12px 16px;">ยอดเงินบาท (THB)</th>
+              <th style="padding: 12px 16px;">เหรียญสุทธิที่โอน</th>
+              <th style="padding: 12px 16px;">กระเป๋าผู้รับ (ปลายทาง)</th>
+              <th style="padding: 12px 16px;">สถานะ</th>
+              <th style="padding: 12px 16px;">รหัส TxID</th>
+              <th style="padding: 12px 16px; text-align: center;">หลักฐานสลิป</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table-body">
+            <tr>
+              <td colspan="9" style="text-align: center; padding: 36px; color: #64748b;">
+                <span class="material-symbols-outlined" style="font-size: 32px; display: block; margin-bottom: 8px; color: #475569;">inbox</span>
+                ยังไม่มีรายการธุรกรรมในระบบ
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards View (Shown on screens < 768px via CSS) -->
+      <div id="orders-mobile-cards" class="mobile-only-cards" style="display: none; padding: 12px; flex-direction: column; gap: 12px;"></div>
+
+      <!-- Pagination Footer -->
+      <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(5, 11, 20, 0.4); font-size: 12px; color: #94a3b8; flex-wrap: wrap; gap: 10px;">
+        <div id="pagination-info">แสดงรายการ 0 - 0 จากทั้งหมด 0 รายการ</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button id="btn-prev-page" onclick="changeOrderPage(-1)" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; cursor: pointer;" disabled>
+            <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">chevron_left</span> หน้าก่อนหน้า
+          </button>
+          <span id="current-page-label" style="font-family: var(--font-mono); color: #ffffff; padding: 0 4px;">หน้า 1</span>
+          <button id="btn-next-page" onclick="changeOrderPage(1)" class="btn-secondary" style="padding: 6px 12px; font-size: 11px; cursor: pointer;" disabled>
+            หน้าถัดไป <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Digital Receipt Modal Preview ── -->
+<div id="receipt-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 2000; align-items: center; justify-content: center; padding: 16px;">
+  <div style="background: #0b192c; border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 16px; width: 100%; max-width: 580px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); overflow: hidden; animation: zoomIn 0.2s ease;">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(5, 11, 20, 0.6);">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="material-symbols-outlined" style="color: #38bdf8;">receipt_long</span>
+        <span style="font-weight: 700; color: #ffffff; font-size: 15px;">ใบเสร็จดิจิทัล (Official Digital Receipt)</span>
+      </div>
+      <button onclick="closeReceiptModal()" style="background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center;">
+        <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+      </button>
+    </div>
+    
+    <div style="padding: 16px; text-align: center; max-height: 75vh; overflow-y: auto;">
+      <img id="modal-receipt-img" src="" alt="Digital Receipt Preview" style="max-width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(5, 11, 20, 0.4);">
+      <a id="modal-receipt-download-btn" href="" download="crypto_receipt.png" class="btn-shimmer-gold" style="padding: 8px 16px; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; border-radius: 6px; font-weight: 700;">
+        <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+        <span>ดาวน์โหลดรูปใบเสร็จ</span>
+      </a>
+      <button onclick="closeReceiptModal()" class="btn-secondary" style="padding: 8px 16px; font-size: 13px; cursor: pointer;">ปิดหน้าต่าง</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Floating Toast Notification ── -->
+<div id="crypto-toast" style="display: none; position: fixed; bottom: 24px; right: 24px; background: rgba(8, 17, 30, 0.95); border: 1px solid #00ff88; box-shadow: 0 4px 20px rgba(0, 255, 136, 0.25); color: #ffffff; padding: 12px 18px; border-radius: 8px; font-size: 13px; z-index: 3000; align-items: center; gap: 8px; backdrop-filter: blur(10px); animation: slideUp 0.25s ease;">
+  <span class="material-symbols-outlined" style="color: #00ff88; font-size: 18px;">check_circle</span>
+  <span id="crypto-toast-text">คัดลอกข้อมูลเรียบร้อยแล้ว</span>
+</div>
+
+<style>
+  /* Material 3 & Responsive Styles */
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes zoomIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .time-tab {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .time-tab.active {
+    background: #38bdf8;
+    color: #050b14;
+    font-weight: 700;
+  }
+  .time-tab:hover:not(.active) {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Hot Wallet Card Styles */
+  .wallet-card {
+    background: #0b192c;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 12px;
+    padding: 18px;
+    position: relative;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .wallet-card:hover {
+    transform: translateY(-2px);
+    border-color: #38bdf8;
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.1);
+  }
+  .wallet-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .chain-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .chain-bsc { background: rgba(243, 186, 47, 0.12); color: #f3ba2f; border: 1px solid rgba(243, 186, 47, 0.35); }
+  .chain-polygon { background: rgba(130, 71, 229, 0.12); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.35); }
+  .chain-tron { background: rgba(235, 0, 41, 0.12); color: #ff4d6d; border: 1px solid rgba(255, 77, 109, 0.35); }
+  .chain-ltc { background: rgba(56, 189, 248, 0.12); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+
+  .address-copy-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #050b14;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-bottom: 12px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #cbd5e1;
+  }
+  .copy-btn {
+    background: none;
+    border: none;
+    color: #38bdf8;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover {
+    background: rgba(56, 189, 248, 0.15);
+  }
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .status-completed { background: rgba(0, 255, 136, 0.12); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3); }
+  .status-failed { background: rgba(255, 61, 113, 0.12); color: #ff5370; border: 1px solid rgba(255, 61, 113, 0.3); }
+  .status-pending { background: rgba(243, 186, 47, 0.12); color: #f3ba2f; border: 1px solid rgba(243, 186, 47, 0.3); }
+  .status-cancelled { background: rgba(148, 163, 184, 0.12); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3); }
+
+  /* Mobile vs Desktop Viewport Rules */
+  @media (max-width: 768px) {
+    .table-responsive-desktop {
+      display: none !important;
+    }
+    .mobile-only-cards {
+      display: flex !important;
+    }
+    .pipeline-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+    }
+    .crypto-main-title {
+      font-size: 20px !important;
+      line-height: 1.3 !important;
+    }
+    .crypto-main-title span.sub-title {
+      font-size: 12px !important;
+      display: block;
+      margin-top: 2px;
+    }
+    .time-tab {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+  }
+</style>
+
+<script>
+  let currentRange = 'all';
+  let currentOffset = 0;
+  const pageSize = 20;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    refreshAllCryptoData(false);
+    initRatesTimer();
+  });
+
+  // Live Rates Countdown & Auto-Refresh State
+  let rateCountdown = 10;
+  let rateTimer = null;
+
+  function initRatesTimer() {
+    if (rateTimer) clearInterval(rateTimer);
+    rateTimer = setInterval(() => {
+      rateCountdown--;
+      const el = document.getElementById('rates-countdown-num');
+      if (el) el.innerText = rateCountdown;
+      if (rateCountdown <= 0) {
+        rateCountdown = 10;
+        loadRates(true);
+      }
+    }, 1000);
+  }
+
+  async function triggerRatesRefreshNow() {
+    rateCountdown = 10;
+    const el = document.getElementById('rates-countdown-num');
+    if (el) el.innerText = rateCountdown;
+    const icon = document.getElementById('rate-spin-icon');
+    if (icon) icon.style.animation = 'spin 0.8s linear infinite';
+    try {
+      await loadRates(true);
+      showToast('อัปเดตเรทแลกเปลี่ยนสดจาก Bitkub & Binance เรียบร้อยแล้ว');
+    } finally {
+      if (icon) icon.style.animation = 'none';
+    }
+  }
+
+  async function refreshAllCryptoData(force = false) {
+    const icon = document.getElementById('refresh-icon');
+    if (icon) icon.style.animation = 'spin 0.8s linear infinite';
+
+    try {
+      await Promise.allSettled([
+        loadWallets(force),
+        loadMetrics(currentRange),
+        loadRates(force),
+        loadOrders(currentOffset)
+      ]);
+    } finally {
+      if (icon) icon.style.animation = 'none';
+    }
+  }
+
+  function switchTimeRange(range, btn) {
+    document.querySelectorAll('.time-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = range;
+    loadMetrics(range);
+  }
+
+  // 1. Load Unified Wallets (Binance Master Hub & Cold Reserve Vault)
+  async function loadWallets(force = false) {
+    const res = await fetch(`/api/owner/crypto/wallets?refresh=${force}`);
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success || !json.data) return;
+
+    const container = document.getElementById('wallet-cards-grid');
+    if (!container) return;
+
+    const wallets = json.data.wallets || [];
+    container.innerHTML = wallets.map(w => {
+      const isBinance = w.role === 'BINANCE_MASTER_HUB';
+
+      if (isBinance) {
+        const railsHtml = (w.payout_rails || []).map(r => `
+          <div style="background: rgba(10, 2, 4, 0.7); border: 1px solid rgba(212, 175, 55, 0.25); border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 6px #00ff88;"></span>
+              <span style="font-weight: 700; color: #ffffff; font-size: 12px;">${r.name}</span>
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 11px; text-align: right;">
+              <span style="color: #ffd700;">ค่าธรรมเนียม: ${r.fee}</span>
+              <span style="color: #64748b; margin-left: 6px;">(ขั้นต่ำ ${r.min})</span>
+            </div>
+          </div>
+        `).join('');
+
+        return `
+          <div class="wallet-card" style="border: 2px solid #d4af37; box-shadow: 0 8px 32px rgba(212, 175, 55, 0.25); background: linear-gradient(135deg, #180509 0%, #20060d 45%, #0a0203 100%); border-radius: 14px; padding: 22px; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid rgba(212, 175, 55, 0.25); padding-bottom: 10px;">
+              <span style="font-size: 13px; font-weight: 800; color: #ffd700; letter-spacing: 0.04em;">
+                ${w.role_title}
+              </span>
+              <span style="font-size: 11px; font-weight: 700; color: #00ff88; font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 255, 136, 0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(0, 255, 136, 0.35);">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: #00ff88; box-shadow: 0 0 8px #00ff88;"></span>
+                ONLINE 24/7 (SAPI)
+              </span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; background: rgba(10, 2, 4, 0.75); border: 1px solid rgba(212, 175, 55, 0.2); padding: 14px 18px; border-radius: 10px;">
+              <div>
+                <div style="font-size: 12px; color: #94a3b8; font-weight: 500;">ยอดเงินในพูลกลางพร้อมจ่าย (Spot USDT):</div>
+                <div style="font-family: var(--font-display); font-size: 32px; font-weight: 900; color: #ffd700; text-shadow: 0 0 16px rgba(255, 215, 0, 0.35); line-height: 1.2;">
+                  ${w.usdt_balance.toFixed(2)} <span style="font-size: 16px; color: #ffffff;">USDT</span>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 12px; color: #94a3b8;">แก๊สสำรอง (${w.gas_symbol}):</div>
+                <div style="font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: #00ff88;">
+                  ${w.gas_balance} ${w.gas_symbol}
+                </div>
+                <div style="font-size: 10px; color: #64748b; margin-top: 2px;">(หักค่าธรรมเนียมลด 25%)</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: #ffd700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">
+                ⚡ ช่องทางโอนจ่ายออกสู่ลูกค้าอัตโนมัติ (Multi-Chain Payout Rails):
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px;">
+                ${railsHtml}
+              </div>
+            </div>
+
+            <div style="font-size: 11px; color: #fca5a5; background: rgba(220, 38, 38, 0.12); border: 1px solid rgba(220, 38, 38, 0.3); border-radius: 8px; padding: 8px 12px; line-height: 1.4;">
+              💡 <strong>สถาปัตยกรรมคลังกลาง:</strong> ${w.action_hint}
+            </div>
+          </div>
+        `;
+      } else {
+        const shortAddr = w.address && w.address.length > 16 
+          ? `${w.address.slice(0, 10)}...${w.address.slice(-8)}` 
+          : w.address;
+
+        return `
+          <div class="wallet-card" style="border: 1.5px solid #d97706; box-shadow: 0 8px 32px rgba(217, 119, 6, 0.18); background: linear-gradient(135deg, rgba(25, 6, 11, 0.95) 0%, #100306 100%); border-radius: 14px; padding: 22px; position: relative; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1.5px solid rgba(217, 119, 6, 0.25); padding-bottom: 10px;">
+              <span style="font-size: 13px; font-weight: 800; color: #f59e0b; letter-spacing: 0.04em;">
+                ${w.role_title}
+              </span>
+              <span style="font-size: 11px; font-weight: 700; color: #00ff88; font-family: var(--font-mono); display: inline-flex; align-items: center; gap: 6px; background: rgba(0, 255, 136, 0.12); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(0, 255, 136, 0.35);">
+                <span style="width: 7px; height: 7px; border-radius: 50%; background: #00ff88;"></span>
+                COLD SECURED
+              </span>
+            </div>
+
+            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">
+              ${w.address_label}
+            </div>
+            <div class="address-copy-box" style="background: rgba(10, 2, 4, 0.8); border: 1px solid rgba(217, 119, 6, 0.3); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;">
+              <span title="${w.address}" style="font-family: var(--font-mono); font-size: 13px; color: #ffd700; font-weight: 700;">${shortAddr}</span>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <button class="copy-btn" onclick="copyToClipboard('${w.address}', 'คัดลอกเลขกระเป๋า Cold Vault แล้ว')" title="คัดลอกเลขกระเป๋า" style="color: #ffd700;">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">content_copy</span>
+                </button>
+                <a href="${w.explorer_url}" target="_blank" rel="noopener noreferrer" style="color: #ffd700; display: flex; align-items: center;" title="ดูบน BscScan">
+                  <span class="material-symbols-outlined" style="font-size: 16px;">open_in_new</span>
+                </a>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; background: rgba(10, 2, 4, 0.75); border: 1px solid rgba(217, 119, 6, 0.2); padding: 14px 18px; border-radius: 10px;">
+              <div>
+                <div style="font-size: 12px; color: #94a3b8;">ยอด USDT สำรองบนเชน:</div>
+                <div style="font-family: var(--font-display); font-size: 28px; font-weight: 800; color: #ffffff;">
+                  ${w.usdt_balance.toFixed(2)} <span style="font-size: 14px; color: #ffd700;">USDT</span>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 12px; color: #94a3b8;">ค่า Gas คงเหลือ (${w.gas_symbol}):</div>
+                <div style="font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: #cbd5e1;">
+                  ${w.gas_balance} ${w.gas_symbol}
+                </div>
+              </div>
+            </div>
+
+            <div style="font-size: 11px; color: #cbd5e1; line-height: 1.5; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+              <div style="color: #00ff88; font-weight: 700; margin-bottom: 4px;">
+                ${w.security_info}
+              </div>
+              <div style="color: #94a3b8; font-size: 11px;">
+                💡 ${w.action_hint}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }).join('');
+  }
+
+  // 2. Load Executive Metrics
+  async function loadMetrics(range = 'all') {
+    const res = await fetch(`/api/owner/crypto/metrics?range=${range}`);
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success || !json.data) return;
+
+    const fin = json.data.financials || {};
+    const sum = json.data.orders_summary || {};
+
+    const elVol = document.getElementById('kpi-volume-thb');
+    const elMargin = document.getElementById('kpi-margin-thb');
+    const elGas = document.getElementById('kpi-gas-collected');
+    const elRate = document.getElementById('kpi-success-rate');
+    const elOrders = document.getElementById('kpi-orders-count');
+    const elFailed = document.getElementById('kpi-failed-count');
+
+    if (elVol) elVol.innerText = `${fin.total_thb_volume.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`;
+    if (elMargin) elMargin.innerText = `+${fin.gross_margin_profit_thb.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`;
+    if (elGas) elGas.innerText = `${fin.gas_fees_collected_thb.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`;
+    if (elRate) elRate.innerText = `${sum.success_rate_pct.toFixed(1)}%`;
+    if (elOrders) elOrders.innerText = `${sum.completed} ออเดอร์ที่สำเร็จ (${sum.total_orders} รายการทั้งหมด)`;
+    if (elFailed) elFailed.innerText = `${sum.failed} รายการล้มเหลว (คืนเครดิตเรียบร้อย)`;
+  }
+
+  // 3. Load Rates & Live Tickers
+  async function loadRates(force = false) {
+    const res = await fetch(`/api/owner/crypto/rates?refresh=${force}`);
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success || !json.data) return;
+
+    const tbody = document.getElementById('rates-table-body');
+    if (!tbody) return;
+
+    const rates = json.data.rates || [];
+
+    // Update Ribbon Tickers
+    const usdtRate = rates.find(r => r.asset.startsWith('USDT'));
+    const ltcRate = rates.find(r => r.asset === 'LTC');
+    const tickerUsdt = document.getElementById('ticker-usdt-price');
+    const tickerLtc = document.getElementById('ticker-ltc-price');
+
+    if (tickerUsdt && usdtRate) tickerUsdt.innerText = `${usdtRate.market_price.toFixed(2)} บาท`;
+    if (tickerLtc && ltcRate) {
+      const ltcUsdtPrice = (ltcRate.market_price / (usdtRate ? usdtRate.market_price : 33.8)).toFixed(2);
+      tickerLtc.innerText = `${ltcUsdtPrice} USDT (${ltcRate.market_price.toFixed(2)} บ.)`;
+    }
+
+    tbody.innerHTML = rates.map(r => `
+      <tr style="border-bottom: 1px solid rgba(212, 175, 55, 0.15); transition: background 0.15s;">
+        <td style="padding: 12px 16px; font-weight: 700; color: #ffffff;">
+          <span style="font-family: var(--font-mono); color: #ffd700;">${r.asset}</span>
+          <span style="font-size: 11px; color: #fca5a5; margin-left: 6px;">(${r.network})</span>
+        </td>
+        <td style="padding: 12px 16px; font-family: var(--font-mono); color: #cbd5e1;">${r.market_price.toFixed(2)} บาท</td>
+        <td style="padding: 12px 16px; font-family: var(--font-mono); color: #00ff88; font-weight: 600;">+${r.margin_thb.toFixed(2)} บาท</td>
+        <td style="padding: 12px 16px; font-family: var(--font-mono); font-weight: 800; font-size: 14px; color: #ffd700;">${r.effective_rate.toFixed(2)} บาท</td>
+        <td style="padding: 12px 16px; font-family: var(--font-mono); color: #cbd5e1;">${r.network_fee_thb.toFixed(2)} บาท</td>
+        <td style="padding: 12px 16px; font-family: var(--font-mono); color: #94a3b8;">${r.min_exchange_thb.toFixed(2)} บาท</td>
+      </tr>
+    `).join('');
+  }
+
+  // 4. Load Orders Ledger
+  async function loadOrders(offset = 0) {
+    currentOffset = offset;
+    const searchVal = document.getElementById('order-search-input')?.value || '';
+    const statusVal = document.getElementById('order-status-filter')?.value || 'ALL';
+    const assetVal = document.getElementById('order-asset-filter')?.value || 'ALL';
+
+    const url = `/api/owner/crypto/orders?limit=${pageSize}&offset=${offset}&search=${encodeURIComponent(searchVal)}&status=${statusVal}&asset=${assetVal}`;
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const json = await res.json();
+    if (!json.success || !json.data) return;
+
+    const { total, orders } = json.data;
+    renderOrdersDesktop(orders);
+    renderOrdersMobile(orders);
+
+    // Update Pagination Info
+    const pInfo = document.getElementById('pagination-info');
+    const pageLabel = document.getElementById('current-page-label');
+    const btnPrev = document.getElementById('btn-prev-page');
+    const btnNext = document.getElementById('btn-next-page');
+
+    const startIdx = total === 0 ? 0 : offset + 1;
+    const endIdx = Math.min(offset + pageSize, total);
+    if (pInfo) pInfo.innerText = `แสดงรายการ ${startIdx} - ${endIdx} จากทั้งหมด ${total} รายการ`;
+
+    const pageNum = Math.floor(offset / pageSize) + 1;
+    const totalPages = Math.ceil(total / pageSize) || 1;
+    if (pageLabel) pageLabel.innerText = `หน้า ${pageNum} / ${totalPages}`;
+
+    if (btnPrev) btnPrev.disabled = (offset <= 0);
+    if (btnNext) btnNext.disabled = (offset + pageSize >= total);
+  }
+
+  function renderOrdersDesktop(orders) {
+    const tbody = document.getElementById('orders-table-body');
+    if (!tbody) return;
+
+    if (orders.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align: center; padding: 36px; color: #64748b;">
+            <span class="material-symbols-outlined" style="font-size: 32px; display: block; margin-bottom: 8px; color: #475569;">search_off</span>
+            ไม่พบรายการธุรกรรมตามเงื่อนไขที่เลือก
+          </td>
+        </tr>`;
+      return;
+    }
+
+    tbody.innerHTML = orders.map(o => {
+      const statusClass = o.status === 'COMPLETED' ? 'status-completed' : o.status === 'FAILED' ? 'status-failed' : o.status === 'CANCELLED' ? 'status-cancelled' : 'status-pending';
+      const statusIcon = o.status === 'COMPLETED' ? 'check_circle' : o.status === 'FAILED' ? 'cancel' : o.status === 'CANCELLED' ? 'close' : 'schedule';
+      const shortAddr = o.recipient_address ? `${o.recipient_address.slice(0, 8)}...${o.recipient_address.slice(-6)}` : '-';
+      const coin = o.asset.split('_')[0];
+      const dateStr = o.created_at ? new Date(o.created_at).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }) : '-';
+
+      const txLink = o.tx_hash
+        ? `<div style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 11px;">
+             <span title="${o.tx_hash}">${o.tx_hash.slice(0, 10)}...</span>
+             <button class="copy-btn" onclick="copyToClipboard('${o.tx_hash}', 'คัดลอก TxID แล้ว')" title="คัดลอก TxID">
+               <span class="material-symbols-outlined" style="font-size: 14px;">content_copy</span>
+             </button>
+             <a href="${o.explorer_url}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8;" title="เปิดดูบน Explorer">
+               <span class="material-symbols-outlined" style="font-size: 14px;">open_in_new</span>
+             </a>
+           </div>`
+        : `<span style="color: #64748b;">-</span>`;
+
+      return `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.15s;">
+          <td style="padding: 12px 16px;">
+            <div style="font-weight: 600; color: #ffffff;">#${o.id.slice(0, 8).toUpperCase()}</div>
+            <div style="font-size: 11px; color: #64748b;">${dateStr}</div>
+          </td>
+          <td style="padding: 12px 16px; font-family: var(--font-mono); color: #cbd5e1;">
+            <span>${o.discord_user_id}</span>
+          </td>
+          <td style="padding: 12px 16px;">
+            <div style="font-weight: 600; color: #38bdf8;">${o.asset}</div>
+            <div style="font-size: 11px; color: #64748b;">${o.network}</div>
+          </td>
+          <td style="padding: 12px 16px; font-family: var(--font-mono); color: #ffffff; font-weight: 600;">
+            ${o.thb_amount.toFixed(2)} บ.
+          </td>
+          <td style="padding: 12px 16px; font-family: var(--font-mono); color: #00ff88; font-weight: 700;">
+            ${o.crypto_amount} ${coin}
+          </td>
+          <td style="padding: 12px 16px;">
+            <div style="display: flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 12px;">
+              <span title="${o.recipient_address}">${shortAddr}</span>
+              <button class="copy-btn" onclick="copyToClipboard('${o.recipient_address}', 'คัดลอก Address แล้ว')" title="คัดลอก">
+                <span class="material-symbols-outlined" style="font-size: 14px;">content_copy</span>
+              </button>
+            </div>
+          </td>
+          <td style="padding: 12px 16px;">
+            <span class="status-chip ${statusClass}">
+              <span class="material-symbols-outlined" style="font-size: 13px;">${statusIcon}</span>
+              ${o.status}
+            </span>
+          </td>
+          <td style="padding: 12px 16px;">${txLink}</td>
+          <td style="padding: 12px 16px; text-align: center;">
+            <button onclick="openReceiptPreview('${o.id}')" class="btn-secondary" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; border-color: rgba(212, 175, 55, 0.4); cursor: pointer;" title="เปิดดูสลิปใบเสร็จดิจิทัล">
+              <span class="material-symbols-outlined" style="font-size: 14px; color: var(--gold-bright);">receipt_long</span>
+              <span>สลิป</span>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderOrdersMobile(orders) {
+    const container = document.getElementById('orders-mobile-cards');
+    if (!container) return;
+
+    if (orders.length === 0) {
+      container.innerHTML = `<div style="text-align: center; padding: 24px; color: #64748b;">ไม่พบรายการธุรกรรม</div>`;
+      return;
+    }
+
+    container.innerHTML = orders.map(o => {
+      const statusClass = o.status === 'COMPLETED' ? 'status-completed' : o.status === 'FAILED' ? 'status-failed' : 'status-pending';
+      const statusIcon = o.status === 'COMPLETED' ? 'check_circle' : o.status === 'FAILED' ? 'cancel' : 'schedule';
+      const coin = o.asset.split('_')[0];
+
+      return `
+        <div style="background: rgba(5, 11, 20, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-family: var(--font-mono); font-weight: 700; color: #38bdf8;">#${o.id.slice(0, 8).toUpperCase()}</span>
+            <span class="status-chip ${statusClass}">
+              <span class="material-symbols-outlined" style="font-size: 12px;">${statusIcon}</span>
+              ${o.status}
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 6px;">
+            <span style="color: #94a3b8;">ยอดเงิน:</span>
+            <span style="color: #ffffff; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+              ${o.thb_amount.toFixed(2)} บาท 
+              <span class="material-symbols-outlined" style="font-size: 13px; color: #94a3b8;">arrow_forward</span> 
+              <span style="color: #00ff88;">${o.crypto_amount} ${coin}</span>
+            </span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px;">
+            <span style="color: #94a3b8;">ลูกค้า Discord:</span>
+            <span style="font-family: var(--font-mono); color: #cbd5e1;">${o.discord_user_id}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
+            <span style="color: #64748b;">ปลายทาง: ${o.recipient_address ? o.recipient_address.slice(0, 10) + '...' : '-'}</span>
+            <button onclick="openReceiptPreview('${o.id}')" class="btn-secondary" style="padding: 4px 8px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+              <span class="material-symbols-outlined" style="font-size: 13px; color: var(--gold-bright);">receipt_long</span>
+              <span>ดูสลิป</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function changeOrderPage(direction) {
+    const newOffset = currentOffset + (direction * pageSize);
+    if (newOffset >= 0) {
+      loadOrders(newOffset);
+    }
+  }
+
+  function copyToClipboard(text, message = 'คัดลอกเรียบร้อยแล้ว') {
+    if (!text || text === '-' || text.startsWith('ยังไม่')) return;
+    navigator.clipboard.writeText(text).then(() => {
+      showToast(message);
+    }).catch(() => {
+      showToast('ไม่สามารถคัดลอกข้อมูลได้');
+    });
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('crypto-toast');
+    const toastText = document.getElementById('crypto-toast-text');
+    if (!toast || !toastText) return;
+
+    toastText.innerText = message;
+    toast.style.display = 'flex';
+    setTimeout(() => {
+      toast.style.display = 'none';
+    }, 2400);
+  }
+
+  function openReceiptPreview(orderId) {
+    const modal = document.getElementById('receipt-modal');
+    const img = document.getElementById('modal-receipt-img');
+    const downloadBtn = document.getElementById('modal-receipt-download-btn');
+    if (!modal || !img) return;
+
+    // Load sample or live receipt image
+    const receiptUrl = `/static/receipts/sample_receipt.png`;
+    img.src = receiptUrl;
+    if (downloadBtn) {
+      downloadBtn.href = receiptUrl;
+      downloadBtn.download = `receipt_${orderId.slice(0, 8)}.png`;
+    }
+    modal.style.display = 'flex';
+  }
+
+  function closeReceiptModal() {
+    const modal = document.getElementById('receipt-modal');
+    if (modal) modal.style.display = 'none';
+  }
+</script>
+{% endblock %}

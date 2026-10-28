@@ -1,0 +1,94 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model UserCredit {
+  id              String         @id @default(uuid())
+  discordUserId   String         @unique
+  discordUsername String?
+  balanceThb      Float          @default(0.0)
+  totalTopupThb   Float          @default(0.0)
+  totalSpentThb   Float          @default(0.0)
+  isBanned        Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  orders          ExchangeOrder[]
+  transactions    CreditTransaction[]
+}
+
+model CreditTransaction {
+  id              String         @id @default(uuid())
+  discordUserId   String
+  user            UserCredit     @relation(fields: [discordUserId], references: [discordUserId])
+  type            String         // "TOPUP_SLIP", "EXCHANGE_DEBIT", "REFUND_CREDIT", "ADMIN_ADJUST"
+  amountThb       Float
+  balanceBefore   Float
+  balanceAfter    Float
+  referenceId     String?        // transRef ของสลิป หรือ orderId ของการแลกเหรียญ
+  note            String?
+  createdAt       DateTime       @default(now())
+}
+
+model ExchangeOrder {
+  id                String         @id @default(uuid())
+  discordUserId     String
+  user              UserCredit     @relation(fields: [discordUserId], references: [discordUserId])
+  
+  asset             String         // "USDT_BEP20", "USDT_TRC20", "USDT_POLYGON", "USDT_ARBITRUM", "LTC"
+  network           String         // "BSC", "TRON", "POLYGON", "ARBITRUM", "LITECOIN"
+  payoutMethod      String         @default("HOT_WALLET") // "HOT_WALLET", "BINANCE_API"
+  recipientAddress  String
+  
+  thbAmountDebit    Float          // ยอดเงินบาทที่หักจากเครดิต
+  networkFeeThb     Float          // ค่าธรรมเนียมเน็ตเวิร์ก (บาท)
+  netThbAmount      Float          // ยอดบาทสุทธิที่นำไปคำนวณเหรียญ
+  marketRate        Float          // ราคาตลาด ณ เวลาสั่งแลก
+  appliedSpreadPct  Float          // เปอร์เซ็นต์ส่วนต่างกำไรของร้าน
+  effectiveRate     Float          // อัตราแลกเปลี่ยนจริงหลังบวกกำไร
+  cryptoAmountOut   Float          // จำนวนเหรียญคริปโตที่โอนให้ลูกค้า
+  
+  status            String         @default("QUEUED_FOR_PAYOUT") // "PENDING_PAYMENT", "QUEUED_FOR_PAYOUT", "PROCESSING_PAYOUT", "COMPLETED", "FAILED", "MANUAL_REVIEW"
+  txHash            String?        @unique                       // Hash ธุรกรรมบนบล็อกเชน
+  explorerUrl       String?
+  gasCostThb        Float?
+  retryCount        Int            @default(0)
+  errorMessage      String?
+  
+  createdAt         DateTime       @default(now())
+  completedAt       DateTime?
+}
+
+model VerifiedSlip {
+  transRef          String         @id // Primary Key & Unique ป้องกันสลิปซ้ำระดับ Database
+  discordUserId     String
+  senderName        String?
+  senderAccount     String?
+  senderBank        String?
+  receiverAccount   String
+  amountThb         Float
+  slipDate          DateTime
+  rawPayload        String         // ข้อมูล JSON ตัวเต็มจาก EasySlip (Stringified)
+  verifiedAt        DateTime       @default(now())
+}
+
+model HotWalletState {
+  chain             String         @id // "BSC", "TRON", "POLYGON", "LTC"
+  walletAddress     String
+  nativeBalance     Float          @default(0.0) // ยอดเหรียญค่า Gas (BNB, TRX, POL, LTC)
+  tokenBalance      Float          @default(0.0) // ยอดเหรียญ USDT คงเหลือ
+  lastNonce         Int?           @default(0)
+  isLowBalanceAlert Boolean        @default(false)
+  updatedAt         DateTime       @updatedAt
+}
+
+model SystemSetting {
+  key               String         @id
+  value             String
+  updatedAt         DateTime       @updatedAt
+}
